@@ -13,8 +13,8 @@ import java.util.List;
 
 public class RestfulHeadlines {
 
-    String apiKey = "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";
-    String newsUri = "https://newsapi.org/v2/top-headlines?country=us&category=entertainment&apiKey=5bbd80e0943d481e8fdcba763a5d23bb";
+    String apiKey = "OPENAI_KEY_HERE";
+    String newsUri = "https://newsapi.org/v2/top-headlines?country=us&category=entertainment&apiKey=NEWSAPI_KEY_HERE";
     NewsApiResponse newsApiResponse;
     String openAiResponseString;
 
