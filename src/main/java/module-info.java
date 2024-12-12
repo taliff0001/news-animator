@@ -1,4 +1,4 @@
-module com.tommyaliff.parsestuff {
+module com.tommyaliff.newsanimator {
     requires javafx.controls;
     requires javafx.fxml;
 

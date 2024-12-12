@@ -1,95 +1,118 @@
 package com.tommyaliff.newsanimator;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.util.List;
 
-import static java.net.http.HttpClient.newHttpClient;
-
-
 public class RestfulHeadlines {
+    private static final String API_KEY = System.getenv("STABILITY_API_KEY");
+    private static final String API_URL = "https://api.stability.ai/v1/generation/stable-diffusion-v1-6/text-to-image";
+    private static final String NEWS_API_KEY = System.getenv("NEWS_API_KEY");
+    private final String newsUri;
+    private NewsApiResponse newsApiResponse;
+    private final Gson gson;
 
-    String apiKey = "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";
-    String newsUri = "https://newsapi.org/v2/top-headlines?country=us&category=entertainment&apiKey=9d3213573321478e828a2b254752efe2";
-    NewsApiResponse newsApiResponse;
-    String openAiResponseString;
+    public RestfulHeadlines() {
+        this.newsUri = String.format(
+                "https://newsapi.org/v2/top-headlines?country=us&category=entertainment&apiKey=%s",
+                NEWS_API_KEY
+        );
+        this.gson = new Gson();
+    }
 
     public void fetchHeadlines() {
-        HttpRequest getRequest = null;
-        try { HttpClient httpClient = newHttpClient();
-            getRequest = HttpRequest.newBuilder().uri(new URI(newsUri)).build();
+        HttpRequest getRequest;
+        try {
+            HttpResponse<String> getResponse;
+            try (HttpClient httpClient = HttpClient.newHttpClient()) {
+                getRequest = HttpRequest.newBuilder()
+                        .uri(new URI(newsUri))
+                        .GET()
+                        .build();
 
-            HttpResponse<String> getResponse = httpClient.send(getRequest, HttpResponse.BodyHandlers.ofString());
+                getResponse = httpClient.send(getRequest, HttpResponse.BodyHandlers.ofString());
+            }
 
-            Gson gson = new Gson();
-            newsApiResponse = gson.fromJson(getResponse.body(), NewsApiResponse.class);
+            if (getResponse.statusCode() != 200) {
+                System.err.println("News API error: " + getResponse.statusCode() + " - " + getResponse.body());
+                return;
+            }
+
+            try {
+                newsApiResponse = gson.fromJson(getResponse.body(), NewsApiResponse.class);
+                if (newsApiResponse == null || newsApiResponse.getArticles() == null) {
+                    System.err.println("Invalid response format from News API");
+                }
+            } catch (JsonSyntaxException e) {
+                System.err.println("Error parsing News API response: " + e.getMessage());
+            }
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
-            System.out.println(e.getMessage());
+            System.err.println("Error fetching headlines: " + e.getMessage());
         }
     }
 
-
-    public FakeDAO postRequest(List<Article> articleList) throws IOException, URISyntaxException, InterruptedException {
+    public FakeDAO postRequest(List<Article> articleList) throws IOException, InterruptedException {
+        if (articleList == null || articleList.isEmpty() || articleList.size() < 2) {
+            return null;
+        }
 
         String nextArticle = articleList.remove(1).getTitle();
-
-        if (nextArticle.contains("Removed"))
-            return null;
-
-        String prompt = "Today's News: " + nextArticle;
-
-        openAiResponseString = "{\n" + "    \"prompt\": " + "\"" + prompt + "\"" + ",\n" + "    \"n\": 1,\n" + "    \"size\": \"512x512\"\n" + "  }";
-
-        java.net.http.HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI("https://api.openai.com/v1/images/generations"))
-                .header("Authorization", "Bearer " + apiKey)
-                .header("Content-Type", "application/json")
-                .POST(BodyPublishers.ofString(openAiResponseString))
-                .build();
-
-        System.out.println(openAiResponseString);
-
-        java.net.http.HttpResponse<String> postResponse;
-        try {java.net.http.HttpClient client = newHttpClient();
-            postResponse = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
-        } catch (IOException | InterruptedException e) {
-            System.out.println(e.getMessage());
+        if (nextArticle == null || nextArticle.isEmpty() || nextArticle.contains("Removed")) {
             return null;
         }
 
-        System.out.println(postResponse.statusCode());
-        System.out.println("Response: " + postResponse.body());
+        String requestBody = String.format(
+                "{\n  \"cfg_scale\": 7,\n  \"clip_guidance_preset\": \"NONE\",\n  \"height\": 512,\n  \"width\": 512,\n  \"samples\": 1,\n  \"seed\": 0,\n  \"steps\": 30,\n  \"text_prompts\": [\n    {\n      \"text\": \"%s\",\n      \"weight\": 1\n    }\n  ]\n}",
+                nextArticle.replace("\"", "'") // Escape quotes in the title
+        );
 
-        Gson gson = new Gson();
-        OpenAiResponse openAiResponse = gson.fromJson(postResponse.body(), OpenAiResponse.class);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(API_URL))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .header("Authorization", "Bearer " + API_KEY)
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
 
-        FakeDAO fakeDAO = new FakeDAO();
-        fakeDAO.setFakeImageUrl(openAiResponse.getUrlList().get(0).getUrl());
-        fakeDAO.setTitle(nextArticle);
-        return fakeDAO;
+        HttpResponse<String> response;
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        }
+
+        if (response.statusCode() == 200) {
+            try {
+                StabilityResponse stabilityResponse = gson.fromJson(response.body(), StabilityResponse.class);
+                if (stabilityResponse == null ||
+                        stabilityResponse.artifacts == null ||
+                        stabilityResponse.artifacts.length == 0 ||
+                        stabilityResponse.artifacts[0] == null ||
+                        stabilityResponse.artifacts[0].base64 == null) {
+                    System.err.println("Invalid response format from Stability API");
+                    return null;
+                }
+
+                FakeDAO fakeDAO = new FakeDAO();
+                fakeDAO.setFakeImageUrl(stabilityResponse.artifacts[0].base64);
+                fakeDAO.setTitle(nextArticle);
+                return fakeDAO;
+            } catch (JsonSyntaxException e) {
+                System.err.println("Error parsing Stability API response: " + e.getMessage());
+                return null;
+            }
+        } else {
+            System.err.println("Stability API error: " + response.statusCode() + " - " + response.body());
+            return null;
+        }
     }
-
 
     public NewsApiResponse getApiResponse() {
         return newsApiResponse;
-    }
-
-    public void setApiResponse(NewsApiResponse newsApiResponse) {
-        this.newsApiResponse = newsApiResponse;
-    }
-
-    public String getOpenAiResponseString() {
-        return openAiResponseString;
-    }
-
-    public void setOpenAiResponseString(String openAiResponseString) {
-        this.openAiResponseString = openAiResponseString;
     }
 }
