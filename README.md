@@ -1,24 +1,39 @@
 # News Animator
-
 **News Animator** is a JavaFX application that retrieves entertainment news headlines from the [NewsAPI](https://newsapi.org/). Users can choose to display either:
-
-- An animated rendition of the headline generated via an API call to DALL·E 2 (planned update to DALL·E 3).
+- An AI-generated image of the headline created using Stability AI's API
 - The standard image associated with the headline.
-
 The application follows the Model-View-Presenter (MVP) architectural pattern.
 
 ## Features
-
 - **Entertainment News Retrieval**: Fetches the latest entertainment news headlines.
 - **Display Options**:
-  - Animated rendition of headlines (DALL·E 2 integration; update to DALL·E 3 forthcoming).
-  - Standard image associated with the headline.
+  - AI-generated interpretations of headlines (using Stability AI's Stable Diffusion)
+  - Standard image associated with the headline
 - **Architecture**: Implements the Model-View-Presenter (MVP) pattern for a clean, maintainable codebase.
 
 ## Technology Stack
-
 - **Programming Language**: Java
 - **Framework**: JavaFX for the user interface
 - **APIs**:
-  - [NewsAPI](https://newsapi.org/) for news headline retrieval.
-  - DALL·E 2 (planned update to DALL·E 3) for generating animated renditions.
+  - [NewsAPI](https://newsapi.org/) for news headline retrieval
+  - [Stability AI](https://stability.ai/) for generating AI images
+
+## Setup
+### API Keys
+The application requires two API keys to function:
+1. A NewsAPI key from https://newsapi.org/
+2. A Stability AI API key from https://stability.ai/
+
+You can set these keys using environment variables:
+```bash
+STABILITY_API_KEY=your_stability_api_key
+NEWS_API_KEY=your_news_api_key
+```
+
+Alternatively, create a `.env` file in the project root with the following content:
+```
+STABILITY_API_KEY=your_stability_api_key
+NEWS_API_KEY=your_news_api_key
+```
+
+Note: The `.env` file is ignored by git to keep your API keys secure.
