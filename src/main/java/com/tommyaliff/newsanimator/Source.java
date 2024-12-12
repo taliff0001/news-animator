@@ -1,4 +1,4 @@
-package com.tommyaliff.livenews;
+package com.tommyaliff.newsanimator;
 
 public class Source {
     public String id;

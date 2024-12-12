@@ -1,4 +1,4 @@
-package com.tommyaliff.livenews;
+package com.tommyaliff.newsanimator;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

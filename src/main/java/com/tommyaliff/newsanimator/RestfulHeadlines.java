@@ -1,4 +1,4 @@
-package com.tommyaliff.livenews;
+package com.tommyaliff.newsanimator;
 
 import com.google.gson.Gson;
 import java.io.IOException;
@@ -10,17 +10,19 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.util.List;
 
+import static java.net.http.HttpClient.newHttpClient;
+
 
 public class RestfulHeadlines {
 
-    String apiKey = "OPENAI_KEY_HERE";
-    String newsUri = "https://newsapi.org/v2/top-headlines?country=us&category=entertainment&apiKey=NEWSAPI_KEY_HERE";
+    String apiKey = "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";
+    String newsUri = "https://newsapi.org/v2/top-headlines?country=us&category=entertainment&apiKey=9d3213573321478e828a2b254752efe2";
     NewsApiResponse newsApiResponse;
     String openAiResponseString;
 
     public void fetchHeadlines() {
         HttpRequest getRequest = null;
-        try { HttpClient httpClient = HttpClient.newHttpClient();
+        try { HttpClient httpClient = newHttpClient();
             getRequest = HttpRequest.newBuilder().uri(new URI(newsUri)).build();
 
             HttpResponse<String> getResponse = httpClient.send(getRequest, HttpResponse.BodyHandlers.ofString());
@@ -55,7 +57,7 @@ public class RestfulHeadlines {
         System.out.println(openAiResponseString);
 
         java.net.http.HttpResponse<String> postResponse;
-        try {java.net.http.HttpClient client = java.net.http.HttpClient.newHttpClient();
+        try {java.net.http.HttpClient client = newHttpClient();
             postResponse = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException e) {
             System.out.println(e.getMessage());

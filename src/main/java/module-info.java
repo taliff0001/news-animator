@@ -2,17 +2,16 @@ module com.tommyaliff.parsestuff {
     requires javafx.controls;
     requires javafx.fxml;
 
-    requires org.kordamp.bootstrapfx.core;
-
-    requires org.jsoup;
-
+//    requires org.jsoup;
+//
+//    requires com.google.gson;
+//
+//    requires org.apache.httpcomponents.httpclient;
+//    requires org.apache.httpcomponents.httpcore;
+    requires java.net.http;
     requires com.google.gson;
 
-    requires org.apache.httpcomponents.httpclient;
-    requires org.apache.httpcomponents.httpcore;
-    requires java.net.http;
 
-
-    opens com.tommyaliff.livenews to javafx.fxml;
-    exports com.tommyaliff.livenews;
+    opens com.tommyaliff.newsanimator to javafx.fxml;
+    exports com.tommyaliff.newsanimator;
 }

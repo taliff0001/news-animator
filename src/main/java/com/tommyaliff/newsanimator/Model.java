@@ -1,4 +1,4 @@
-package com.tommyaliff.livenews;
+package com.tommyaliff.newsanimator;
 
 import javafx.scene.image.Image;
 import java.io.FileInputStream;
@@ -12,7 +12,7 @@ public class Model {
     private final RestfulHeadlines restfulHeadlines;
     private final Image dImage;
     private String fakeTitle;
-    private static final String defaultImageLoc = "src/main/resources/com/tommyaliff/livenews/nothing.png";
+    private static final String defaultImageLoc = "src/main/resources/com/tommyaliff/newsanimator/nothing.png";
     private final List<Article> articleList = new ArrayList<>();
     protected int index = 0;
 
