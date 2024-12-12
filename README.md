@@ -4,12 +4,14 @@
 - The standard image associated with the headline.
 The application follows the Model-View-Presenter (MVP) architectural pattern.
 
+<em> *Please note that not all new stories contain images</em>
+
 ## Features
 - **Entertainment News Retrieval**: Fetches the latest entertainment news headlines.
 - **Display Options**:
   - AI-generated interpretations of headlines (using Stability AI's Stable Diffusion)
   - Standard image associated with the headline
-- **Architecture**: Implements the Model-View-Presenter (MVP) pattern for a clean, maintainable codebase.
+- **Architecture**: Implements the Model-View-Presenter (MVP) pattern.
 
 ## Technology Stack
 - **Programming Language**: Java
