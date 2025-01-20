@@ -1,4 +1,5 @@
-# News Animator
+## AI News Animator
+#### [See my demonstration here!](https://www.youtube.com/watch?v=uZpVLaqxc6Y&list=PLT3FYymv1Cu7zwRDvvx4USaM9YQ-o_NTE)
 **News Animator** is a JavaFX application that retrieves entertainment news headlines from News API. Users can choose to display either:
 - An AI-generated image of the headline created using Stability AI's API
 - The standard image associated with the headline.
